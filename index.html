@@ -211,6 +211,23 @@
   .upcoming h3 + .ev { border-top:0; }
   .dday { flex:none; font-size:12px; font-weight:800; color:#3D2400; background:var(--orange); border-radius:999px; padding:2px 8px; align-self:center; }
 
+  /* ── 공지 팝업 ── */
+  .pop-dim { position:fixed; inset:0; z-index:50; background:rgba(0,16,46,.55); display:flex; align-items:center; justify-content:center; padding:24px 18px; }
+  .pop-dim[hidden] { display:none; }
+  .pop { width:100%; max-width:420px; max-height:min(80vh, 640px); background:#fff; border-radius:24px; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 20px 50px rgba(0,0,0,.3); animation:popIn .25s ease-out; }
+  @keyframes popIn { from { transform:translateY(16px) scale(.97); opacity:0; } to { transform:none; opacity:1; } }
+  .pop-head { flex:none; background:var(--navy); color:#fff; padding:18px 20px 16px; position:relative; overflow:hidden; }
+  .pop-head::after { content:''; position:absolute; right:-28px; top:-28px; width:96px; height:96px; border-radius:50%; background:var(--orange); }
+  .pop-kicker { position:relative; z-index:1; font-size:13px; font-weight:800; color:var(--orange); display:flex; gap:8px; align-items:center; }
+  .pop-kicker .cnt { color:#fff; opacity:.7; font-weight:600; }
+  .pop-title { position:relative; z-index:1; margin:6px 0 2px; font-size:19px; font-weight:800; line-height:1.4; padding-right:40px; }
+  .pop-date { position:relative; z-index:1; font-size:12px; opacity:.75; }
+  .pop-body { flex:1; min-height:0; padding:16px 20px; overflow-y:auto; color:var(--body); -webkit-overflow-scrolling:touch; }
+  .pop-foot { flex:none; display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--line); }
+  .pop-foot button { border:0; background:#fff; font:inherit; font-size:15px; padding:15px 0; cursor:pointer; color:var(--muted); }
+  .pop-foot button + button { border-left:1px solid var(--line); color:var(--navy); font-weight:800; }
+
   /* ── 하단 탭 ── */
   nav.tabbar { position:fixed; left:0; right:0; bottom:0; z-index:10; background:#fff; border-top:1px solid var(--line);
     display:grid; grid-template-columns:repeat(4,1fr); padding-bottom:env(safe-area-inset-bottom); }
@@ -312,6 +329,21 @@
       </div>
     </section>
   </main>
+
+  <div class="pop-dim" id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="pop-title">
+    <div class="pop">
+      <div class="pop-head">
+        <div class="pop-kicker">📣 회사 공지 <span class="cnt" id="pop-cnt"></span></div>
+        <div class="pop-title" id="pop-title"></div>
+        <div class="pop-date" id="pop-date"></div>
+      </div>
+      <div class="pop-body" id="pop-body"></div>
+      <div class="pop-foot">
+        <button type="button" id="pop-today">오늘 하루 보지 않기</button>
+        <button type="button" id="pop-close">닫기</button>
+      </div>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <button class="active" data-tab="notice">
@@ -466,7 +498,7 @@
     ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = loadingHtml());
     $('#cat-tiles').innerHTML = '';
     call('getData')
-      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); })
+      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); openPopups(); })
       .catch(err => {
         const html = `<div class="empty">불러오지 못했습니다.<br>${esc(errText(err))}<br><button class="btn" type="button" data-retry>다시 시도</button></div>`;
         ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = html);
@@ -666,6 +698,49 @@
     renderCalendar();
   }
 
+  /* ── 공지 팝업 ──
+     시트 [공지사항]의 [팝업]을 체크한 공지를 앱을 열 때 보여 준다.
+     '오늘 하루 보지 않기'는 이 기기에 날짜를 기억하고, '닫기'는 이번에 연 동안만 숨긴다. */
+
+  const POP_KEY = 'welfare.popup.hidden';
+  const popShown = new Set();
+  let popQueue = [];
+
+  function popId(n) { return n.date + '|' + n.title; }
+  function todayStr() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+  function popHidden() { try { return JSON.parse(localStorage.getItem(POP_KEY)) || {}; } catch (e) { return {}; } }
+
+  function openPopups() {
+    const hidden = popHidden(), today = todayStr();
+    popQueue = (state.data.notices || []).filter(n => n.popup && hidden[popId(n)] !== today && !popShown.has(popId(n)));
+    popQueue.forEach(n => popShown.add(popId(n)));
+    showPopup(0);
+  }
+
+  function showPopup(i) {
+    const n = popQueue[i];
+    if (!n) { $('#pop').hidden = true; document.body.style.overflow = ''; return; }
+    $('#pop').dataset.i = i;
+    $('#pop-cnt').textContent = popQueue.length > 1 ? `${i + 1} / ${popQueue.length}` : '';
+    $('#pop-title').textContent = n.title;
+    $('#pop-date').textContent = n.date || '';
+    $('#pop-body').innerHTML = rich(n.content);
+    $('#pop-body').scrollTop = 0;
+    $('#pop-close').textContent = i < popQueue.length - 1 ? '다음' : '닫기';
+    $('#pop').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function nextPopup(hideToday) {
+    const i = Number($('#pop').dataset.i || 0);
+    if (hideToday && popQueue[i]) {
+      const h = popHidden();
+      h[popId(popQueue[i])] = todayStr();
+      try { localStorage.setItem(POP_KEY, JSON.stringify(h)); } catch (e) {}
+    }
+    showPopup(i + 1);
+  }
+
   /* ── 탭 ── */
 
   function showTab(name) {
@@ -765,6 +840,9 @@
     $('#benefit-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   $('#refresh').addEventListener('click', load);
+  $('#pop-close').addEventListener('click', () => nextPopup(false));
+  $('#pop-today').addEventListener('click', () => nextPopup(true));
+  $('#pop').addEventListener('click', e => { if (e.target.id === 'pop') nextPopup(false); });
   $('#cal-prev').addEventListener('click', () => moveMonth(-1));
   $('#cal-next').addEventListener('click', () => moveMonth(1));
   $('#cal-now').addEventListener('click', () => { const n = new Date(); cal.y = n.getFullYear(); cal.m = n.getMonth(); cal.sel = ''; renderCalendar(); });
