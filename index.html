@@ -49,7 +49,9 @@
     padding:10px 8px 10px 16px; padding-top:calc(10px + env(safe-area-inset-top));
     display:flex; align-items:center; justify-content:space-between; }
   .brand { display:flex; align-items:center; gap:10px; }
-  .brand-mark { width:30px; height:30px; border-radius:10px; background:var(--orange); display:grid; place-items:center; font-size:17px; }
+  .brand-mark { width:30px; height:30px; border-radius:9px; background:#fff; display:grid; place-items:center; }
+  .brand-mark img { width:18px; height:18px; display:block; }
+  .hello .wm { position:absolute; left:-18px; bottom:-34px; width:118px; height:118px; opacity:.09; transform:rotate(-12deg); pointer-events:none; }
   .appbar h1 { margin:0; font-size:18px; font-weight:700; letter-spacing:-.2px; }
   .icon-btn { background:transparent; border:0; color:#fff; width:44px; height:44px; border-radius:50%;
     display:grid; place-items:center; cursor:pointer; }
@@ -228,6 +230,43 @@
   .pop-foot button { border:0; background:#fff; font:inherit; font-size:15px; padding:15px 0; cursor:pointer; color:var(--muted); }
   .pop-foot button + button { border-left:1px solid var(--line); color:var(--navy); font-weight:800; }
 
+  /* ── 알림 (알림함·토스트) ── */
+  .bar-btns { display:flex; align-items:center; }
+  .bell { position:relative; }
+  .bell-cnt { position:absolute; top:6px; right:4px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:var(--orange);
+    color:#3D2400; font-size:11px; font-weight:900; line-height:18px; text-align:center; box-shadow:0 0 0 2px var(--navy); }
+  .bell-cnt[hidden] { display:none; }
+  nav.tabbar button .tab-dot { position:absolute; top:10px; left:calc(50% + 8px); width:8px; height:8px; border-radius:50%; background:#E0453A; }
+  nav.tabbar button .tab-dot[hidden] { display:none; }
+  .inbox { position:fixed; inset:0; z-index:40; background:var(--bg); display:flex; flex-direction:column; animation:slideIn .22s ease-out; }
+  .inbox[hidden] { display:none; }
+  @keyframes slideIn { from { transform:translateX(30px); opacity:0; } to { transform:none; opacity:1; } }
+  .inbox-head { background:var(--navy); color:#fff; display:flex; align-items:center; gap:4px; padding:10px 8px; padding-top:calc(10px + env(safe-area-inset-top)); }
+  .inbox-head h2 { flex:1; margin:0; font-size:18px; font-weight:800; }
+  .inbox-head .read-all { border:0; background:rgba(255,255,255,.12); color:#fff; font:inherit; font-size:13px; font-weight:700; padding:7px 12px; border-radius:999px; cursor:pointer; }
+  .inbox-list { flex:1; overflow-y:auto; padding:12px 16px calc(24px + env(safe-area-inset-bottom)); max-width:640px; width:100%; margin:0 auto; }
+  .noti { display:flex; gap:12px; align-items:flex-start; width:100%; text-align:left; font:inherit; color:var(--text); cursor:pointer;
+    background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; margin-bottom:8px; position:relative; }
+  .noti.unread { border-color:var(--orange); background:#FFFBF4; }
+  .noti .n-ico { flex:none; width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:20px; background:var(--navy-soft); }
+  .noti.answer .n-ico { background:var(--orange-soft); }
+  .noti .n-main { flex:1; min-width:0; }
+  .noti .n-title { font-weight:800; font-size:15px; }
+  .noti .n-text { font-size:14px; color:var(--body); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .noti .n-time { font-size:12px; color:var(--muted); margin-top:2px; }
+  .noti.unread::after { content:''; position:absolute; top:14px; right:14px; width:8px; height:8px; border-radius:50%; background:#E0453A; }
+  .toast { position:fixed; left:12px; right:12px; top:calc(70px + env(safe-area-inset-top)); z-index:45; max-width:616px; margin:0 auto;
+    display:flex; align-items:center; gap:10px; background:#fff; border:2px solid var(--orange); border-radius:16px; padding:10px 10px 10px 12px;
+    box-shadow:0 10px 30px rgba(0,32,91,.25); animation:popIn .25s ease-out; }
+  .toast[hidden] { display:none; }
+  .toast .t-ico { font-size:24px; }
+  .toast .t-main { flex:1; min-width:0; font-size:13px; color:var(--body); }
+  .toast .t-main b { display:block; font-size:15px; color:var(--navy); }
+  .toast .t-main span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .toast button { border:0; font:inherit; cursor:pointer; }
+  .toast .t-go { background:var(--navy); color:#fff; font-weight:800; border-radius:10px; padding:8px 12px; }
+  .toast .t-x { background:transparent; color:var(--muted); width:30px; height:30px; font-size:15px; }
+
   /* ── 하단 탭 ── */
   nav.tabbar { position:fixed; left:0; right:0; bottom:0; z-index:10; background:#fff; border-top:1px solid var(--line);
     display:grid; grid-template-columns:repeat(4,1fr); padding-bottom:env(safe-area-inset-bottom); }
@@ -240,17 +279,42 @@
 <body>
   <header class="appbar">
     <div class="brand">
-      <div class="brand-mark" aria-hidden="true">🎁</div>
+      <div class="brand-mark" aria-hidden="true"><img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAEzElEQVR42u2dzYscVRTFz3nvVXX3mA8zpmcyC0VBURQ0WYQsXDjBj0UiCIHMwrUL/wJBEpj4H5hlViLGRDrEhaDbRNCVi4Cg6B/gRiWSZPqrqt47LrqCEaO4mO6u6b4Hilo0dPc7v3vvu1WvPti/vCbMWRLiIx36caGv22//uimBJDSj3yYJqdc9Mqr4A4HVKkIkOMWfTa2Mrkrpe4cl14UL942OHkA262g0APV+XHJ/SuhIwFRj3wA8nIDzXMsDQ0oQZ4jAAFyYeFCV7omQEwCSlaA5iC49DwqY0eRvAB7oSGoCLyEB0CxnACAss/N1C5r01eqB4W0cqwpgyu2nZcDfdG0y/nLHHcsyboyj0qw9sRIEIEZ3KrQAaLYT8FIDEEBsIekiWkp4K44BcPZ+LC2Am9vwADBa727mOZ8dFUqEAZiZNoFEQKjwrneEMNv2c6m7oF4PHltIO5e7R13g6cEwyXGSEZYBM9BZAATkqXN5zizNYfJd2gxQD55biEXv8CsO/sxgoDSv6F+6DFB9lKse8li5D0k4zfk/LVcJullHf9U91+64o4OhIufswdKUoBvbCDyJanh1fZNe54aDFOnmH4BLAUBn4fkBqsHVQ48TuqJEn6REzPa8z1ICkOBIxNuXDh3MXHY9eG7sDJUcm1F+3cJ3PET65dLGyr6D+fWQueP9oaqmmL/QGaBtBG6h+v2T1QMHsvR5luPVfj9VZLPGHBbyJNsNeJ5ENfzo4JNZy3/mA0800fyFK0HqwRMQT6Iqe2uv+07rG+9cY81fmAyQJoFEIuri063qyL3zAN4H4PsDRbrmjtPt5VKjHnzd5SQSqbzafaPauPttyHl+XMgVlRLd/E4zLFwGSOD9ZURuIWILEQB0bf1EmfQeyTMOwM69FN3EeDZ9TKGpJmsbwgu1gV0QNydRDtSmf7GxUo3iayninXGF062cbmcgEZBreNQ3F4Cg+qLc+LCP73y8/7G81TkG8VTRj2/mgc8gB/pDoRog1mc1uZeyOjQo8iGppStr6+iwgzH2jVQddnRPJfE5JxxNwIstxyPMiFgA/ZESAJFw4N6J+sYBIOFHY0Hg8RHwE4YKENqtLAQGAI5AFMpCGBRKGCuBcOTeb6NDg7oakAgEHpWAJNRmQ5P8AIHadC7O8Uto2ASMKv11cSABt7cq+gJ0QbO+NNAOxJZcBsAAGACTATAAJgNgAEwGwACYDIABMBmA5ZCSAZjb2sdkz2QArAQZABNsRezBZUkt04pbaNhyJDI/PYPqNWfLgH8zX0KRhNuSuPvfT0nICazKAPzzsZUrbfrRWN+1Qnn6Tpmcit0rRc4lHzuhWin9y3nmvxwUkmtIKWpWCQJKbv1xZ1rfP/i0e9e6oP8mQAmU4Or97mw3ECSQLtkdMv9jLlB9veeubfhtsleiDIDJABgAkwEwACYDYABMBsAAGACTATAAJgNgAEwGwACYDIABMBkAA2AyAAbAZAAMgMkAGACTATAAJgNgAEwGwACYDIABMO2mgoDUgHvDEgBC03+pcj1eab7vGUiq35cQ2hnnngUxwSEjUKA1Vc6S8zldW5Mn4s/RfRcyoijVDkWpW03IgFQgAPoR03mDswAgkXfLUbo1johO88uARCiTvKSf/wSQKRTX7+Ed1QAAAABJRU5ErkJggg=="></div>
       <h1>복리후생 안내</h1>
     </div>
-    <button class="icon-btn" id="refresh" aria-label="새로고침">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-    </button>
+    <div class="bar-btns">
+      <button class="icon-btn bell" id="bell" aria-label="알림함">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="bell-cnt" id="bell-cnt" hidden></span>
+      </button>
+      <button class="icon-btn" id="refresh" aria-label="새로고침">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
   </header>
+
+  <div class="toast" id="toast" hidden role="status">
+    <span class="t-ico" aria-hidden="true">💬</span>
+    <div class="t-main"><b>질문에 답변이 등록됐어요</b><span id="toast-text"></span></div>
+    <button type="button" class="t-go" id="toast-go">보기</button>
+    <button type="button" class="t-x" id="toast-x" aria-label="닫기">✕</button>
+  </div>
+
+  <div class="inbox" id="inbox" hidden role="dialog" aria-label="알림함">
+    <div class="inbox-head">
+      <button class="icon-btn" id="inbox-back" aria-label="뒤로">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2>알림함</h2>
+      <button class="read-all" id="inbox-read">모두 읽음</button>
+    </div>
+    <div class="inbox-list" id="inbox-list"></div>
+  </div>
 
   <main>
     <section class="tab active" id="tab-notice">
       <div class="hello">
+        <img class="wm" alt="" aria-hidden="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAEzElEQVR42u2dzYscVRTFz3nvVXX3mA8zpmcyC0VBURQ0WYQsXDjBj0UiCIHMwrUL/wJBEpj4H5hlViLGRDrEhaDbRNCVi4Cg6B/gRiWSZPqrqt47LrqCEaO4mO6u6b4Hilo0dPc7v3vvu1WvPti/vCbMWRLiIx36caGv22//uimBJDSj3yYJqdc9Mqr4A4HVKkIkOMWfTa2Mrkrpe4cl14UL942OHkA262g0APV+XHJ/SuhIwFRj3wA8nIDzXMsDQ0oQZ4jAAFyYeFCV7omQEwCSlaA5iC49DwqY0eRvAB7oSGoCLyEB0CxnACAss/N1C5r01eqB4W0cqwpgyu2nZcDfdG0y/nLHHcsyboyj0qw9sRIEIEZ3KrQAaLYT8FIDEEBsIekiWkp4K44BcPZ+LC2Am9vwADBa727mOZ8dFUqEAZiZNoFEQKjwrneEMNv2c6m7oF4PHltIO5e7R13g6cEwyXGSEZYBM9BZAATkqXN5zizNYfJd2gxQD55biEXv8CsO/sxgoDSv6F+6DFB9lKse8li5D0k4zfk/LVcJullHf9U91+64o4OhIufswdKUoBvbCDyJanh1fZNe54aDFOnmH4BLAUBn4fkBqsHVQ48TuqJEn6REzPa8z1ICkOBIxNuXDh3MXHY9eG7sDJUcm1F+3cJ3PET65dLGyr6D+fWQueP9oaqmmL/QGaBtBG6h+v2T1QMHsvR5luPVfj9VZLPGHBbyJNsNeJ5ENfzo4JNZy3/mA0800fyFK0HqwRMQT6Iqe2uv+07rG+9cY81fmAyQJoFEIuri063qyL3zAN4H4PsDRbrmjtPt5VKjHnzd5SQSqbzafaPauPttyHl+XMgVlRLd/E4zLFwGSOD9ZURuIWILEQB0bf1EmfQeyTMOwM69FN3EeDZ9TKGpJmsbwgu1gV0QNydRDtSmf7GxUo3iayninXGF062cbmcgEZBreNQ3F4Cg+qLc+LCP73y8/7G81TkG8VTRj2/mgc8gB/pDoRog1mc1uZeyOjQo8iGppStr6+iwgzH2jVQddnRPJfE5JxxNwIstxyPMiFgA/ZESAJFw4N6J+sYBIOFHY0Hg8RHwE4YKENqtLAQGAI5AFMpCGBRKGCuBcOTeb6NDg7oakAgEHpWAJNRmQ5P8AIHadC7O8Uto2ASMKv11cSABt7cq+gJ0QbO+NNAOxJZcBsAAGACTATAAJgNgAEwGwACYDIABMBmA5ZCSAZjb2sdkz2QArAQZABNsRezBZUkt04pbaNhyJDI/PYPqNWfLgH8zX0KRhNuSuPvfT0nICazKAPzzsZUrbfrRWN+1Qnn6Tpmcit0rRc4lHzuhWin9y3nmvxwUkmtIKWpWCQJKbv1xZ1rfP/i0e9e6oP8mQAmU4Or97mw3ECSQLtkdMv9jLlB9veeubfhtsleiDIDJABgAkwEwACYDYABMBsAAGACTATAAJgNgAEwGwACYDIABMBkAA2AyAAbAZAAMgMkAGACTATAAJgNgAEwGwACYDIABMO2mgoDUgHvDEgBC03+pcj1eab7vGUiq35cQ2hnnngUxwSEjUKA1Vc6S8zldW5Mn4s/RfRcyoijVDkWpW03IgFQgAPoR03mDswAgkXfLUbo1johO88uARCiTvKSf/wSQKRTX7+Ed1QAAAABJRU5ErkJggg==">
         <span class="emoji" aria-hidden="true">👋</span>
         <p class="big">오늘도 수고 많으세요!</p>
         <p class="small">새 소식과 <b>복리후생</b>을 여기서 한 번에 확인하세요.</p>
@@ -359,6 +423,7 @@
       일정
     </button>
     <button data-tab="qna">
+      <span class="tab-dot" id="qna-dot" hidden></span>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5"/><path d="M12 16h.01"/></svg>
       질문하기
     </button>
@@ -375,6 +440,7 @@
   var api = {
     getData: function () { return get({ api: 'data' }); },
     checkQuestion: function (t) { return get({ api: 'check', ticket: t }); },
+    checkTickets: function (list) { return get({ api: 'tickets', list: (list || []).join(',') }); },
     submitQuestion: function (f) { return post({ api: 'submit', form: f }); },
   };
   function make(ok, fail) {
@@ -498,7 +564,7 @@
     ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = loadingHtml());
     $('#cat-tiles').innerHTML = '';
     call('getData')
-      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); openPopups(); })
+      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); openPopups(); refreshNotis(); })
       .catch(err => {
         const html = `<div class="empty">불러오지 못했습니다.<br>${esc(errText(err))}<br><button class="btn" type="button" data-retry>다시 시도</button></div>`;
         ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = html);
@@ -508,7 +574,7 @@
   function renderNotices() {
     const list = state.data.notices;
     $('#notice-list').innerHTML = list.length ? list.map(n => `
-      <details class="card${n.important ? ' important' : ''}"${n.important ? ' open' : ''}>
+      <details class="card${n.important ? ' important' : ''}" data-nid="${esc(popId(n))}"${n.important ? ' open' : ''}>
         <summary>
           <div class="ico" style="--c-soft:${n.important ? '#FFF2DF' : '#E8EDF7'}" aria-hidden="true">${n.important ? '📣' : '📝'}</div>
           <div class="sum-main">
@@ -719,7 +785,7 @@
 
   function showPopup(i) {
     const n = popQueue[i];
-    if (!n) { $('#pop').hidden = true; document.body.style.overflow = ''; return; }
+    if (!n) { $('#pop').hidden = true; document.body.style.overflow = ''; flushToast(); return; }
     $('#pop').dataset.i = i;
     $('#pop-cnt').textContent = popQueue.length > 1 ? `${i + 1} / ${popQueue.length}` : '';
     $('#pop-title').textContent = n.title;
@@ -739,6 +805,100 @@
       try { localStorage.setItem(POP_KEY, JSON.stringify(h)); } catch (e) {}
     }
     showPopup(i + 1);
+  }
+
+  /* ── 앱 안 알림 · 알림함 ──
+     이 휴대폰에서 남긴 질문(접수번호)에 답변이 달렸는지 앱을 열 때 확인한다.
+     알림함에는 답변 알림과 최근 2주 공지를 보여 준다. 읽음 여부는 이 기기에만 저장한다. */
+
+  const NOTI_KEY = 'welfare.notif';
+  let notis = [];
+  let pendingToast = null;
+
+  function notiStore() {
+    try { const s = JSON.parse(localStorage.getItem(NOTI_KEY)); if (s && s.read) return { toasted: {}, ...s }; } catch (e) {}
+    return { read: {}, toasted: {} };
+  }
+  function saveNotiStore(s) { try { localStorage.setItem(NOTI_KEY, JSON.stringify(s)); } catch (e) {} }
+  function markRead(id) { const s = notiStore(); if (!s.read[id]) { s.read[id] = 1; saveNotiStore(s); renderNotiBadge(); renderInbox(); } }
+
+  function refreshNotis() {
+    const tickets = getTickets();
+    if (!tickets.length) { buildNotis([]); return; }
+    call('checkTickets', tickets).then(buildNotis).catch(() => buildNotis([]));
+  }
+
+  function buildNotis(answers) {
+    const items = [];
+    (answers || []).filter(a => a.answered).forEach(a => items.push({
+      id: `ans:${a.ticket}:${a.answeredAt}`, kind: 'answer', icon: '💬',
+      title: '질문에 답변이 등록됐어요', text: `접수번호 ${a.ticket} · ${a.question}`, time: a.answeredAt, ticket: a.ticket,
+    }));
+    const since = new Date(); since.setDate(since.getDate() - 14);
+    const cutoff = ymd(since);
+    ((state.data && state.data.notices) || []).filter(n => n.date && n.date >= cutoff).forEach(n => items.push({
+      id: 'notice:' + popId(n), kind: 'notice', icon: n.important ? '📣' : '📝',
+      title: n.important ? '중요 공지' : '새 공지', text: n.title, time: n.date, nid: popId(n),
+    }));
+    items.sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+    notis = items;
+    renderNotiBadge();
+    renderInbox();
+
+    const s = notiStore();
+    const fresh = items.find(it => it.kind === 'answer' && !s.read[it.id] && !s.toasted[it.id]);
+    if (fresh) { s.toasted[fresh.id] = 1; saveNotiStore(s); pendingToast = fresh; if ($('#pop').hidden) flushToast(); }
+  }
+
+  function renderNotiBadge() {
+    const s = notiStore();
+    const unread = notis.filter(n => !s.read[n.id]);
+    const cnt = $('#bell-cnt');
+    cnt.hidden = !unread.length;
+    cnt.textContent = unread.length > 9 ? '9+' : unread.length;
+    $('#qna-dot').hidden = !unread.some(n => n.kind === 'answer');
+  }
+
+  function renderInbox() {
+    const s = notiStore();
+    $('#inbox-list').innerHTML = notis.length ? notis.map((n, i) => `
+      <button type="button" class="noti ${n.kind}${s.read[n.id] ? '' : ' unread'}" data-noti="${i}">
+        <span class="n-ico" aria-hidden="true">${n.icon}</span>
+        <span class="n-main">
+          <span class="n-title" style="display:block">${esc(n.title)}</span>
+          <span class="n-text" style="display:block">${esc(n.text)}</span>
+          <span class="n-time" style="display:block">${esc(n.time || '')}</span>
+        </span>
+      </button>`).join('')
+      : emptyHtml('아직 알림이 없어요. 질문을 남기면 답변이 달릴 때 여기서 알려 드려요.');
+  }
+
+  function openInbox() { $('#toast').hidden = true; renderInbox(); $('#inbox').hidden = false; document.body.style.overflow = 'hidden'; }
+  function closeInbox() { $('#inbox').hidden = true; document.body.style.overflow = ''; }
+
+  function goNoti(n) {
+    markRead(n.id);
+    closeInbox();
+    $('#toast').hidden = true;
+    if (n.kind === 'answer') {
+      showTab('qna'); showPane('check');
+      $('#ticket').value = n.ticket;
+      check(n.ticket);
+    } else {
+      showTab('notice');
+      const card = [...document.querySelectorAll('#notice-list details')].find(d => d.dataset.nid === n.nid);
+      if (card) { card.open = true; card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }
+  }
+
+  function flushToast() {
+    if (!pendingToast) return;
+    const n = pendingToast; pendingToast = null;
+    $('#toast-text').textContent = n.text;
+    $('#toast').dataset.id = n.id;
+    $('#toast').hidden = false;
+    clearTimeout(flushToast.t);
+    flushToast.t = setTimeout(() => { $('#toast').hidden = true; }, 8000);
   }
 
   /* ── 탭 ── */
@@ -803,6 +963,7 @@
     call('checkQuestion', ticket)
       .then(r => {
         if (!r.found) { showMsg('#check-result', 'err', '해당 접수번호의 질문을 찾을 수 없습니다. 번호를 다시 확인해 주세요.'); return; }
+        if (r.answer) markRead(`ans:${r.ticket}:${r.answeredAt}`);
         $('#check-result').innerHTML = `
           <div class="card result">
             ${r.answer ? '<span class="badge done">답변 완료</span>' : '<span class="badge wait">답변 대기</span>'}
@@ -840,6 +1001,12 @@
     $('#benefit-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   $('#refresh').addEventListener('click', load);
+  $('#bell').addEventListener('click', openInbox);
+  $('#inbox-back').addEventListener('click', closeInbox);
+  $('#inbox-read').addEventListener('click', () => { const st = notiStore(); notis.forEach(n => st.read[n.id] = 1); saveNotiStore(st); renderNotiBadge(); renderInbox(); });
+  $('#inbox-list').addEventListener('click', e => { const b = e.target.closest('[data-noti]'); if (b) goNoti(notis[Number(b.dataset.noti)]); });
+  $('#toast-go').addEventListener('click', () => { const n = notis.find(x => x.id === $('#toast').dataset.id); if (n) goNoti(n); });
+  $('#toast-x').addEventListener('click', () => { $('#toast').hidden = true; });
   $('#pop-close').addEventListener('click', () => nextPopup(false));
   $('#pop-today').addEventListener('click', () => nextPopup(true));
   $('#pop').addEventListener('click', e => { if (e.target.id === 'pop') nextPopup(false); });
