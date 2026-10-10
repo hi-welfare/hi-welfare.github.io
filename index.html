@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>복리후생 안내</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#00205B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="복리후생">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<style>
+  .install { position:fixed; left:12px; right:12px; bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 10px); z-index:20;
+    display:flex; align-items:center; gap:10px; background:var(--navy); color:#fff; border-radius:16px; padding:10px 10px 10px 12px;
+    box-shadow:0 8px 24px rgba(0,32,91,.3); max-width:616px; margin:0 auto; }
+  .install[hidden] { display:none; }
+  .install img { width:40px; height:40px; border-radius:10px; display:block; }
+  .install .ins-txt { flex:1; min-width:0; font-size:13px; line-height:1.4; }
+  .install .ins-txt b { display:block; font-size:14px; color:var(--orange); }
+  .install button { border:0; font:inherit; cursor:pointer; }
+  .install #ins-btn { background:var(--orange); color:#3D2400; font-weight:800; border-radius:10px; padding:8px 12px; }
+  .install #ins-x { background:transparent; color:#fff; opacity:.7; font-size:16px; width:32px; height:32px; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    /* CI: HI Navy / HI Orange (+ 보조색) */
+    --navy:#00205B; --navy-dark:#001845; --navy-soft:#E8EDF7;
+    --orange:#FF9E1B; --orange-deep:#FF7F32; --orange-soft:#FFF2DF;
+    --yellow:#FFC56E; --purple:#7D55C7; --blue:#418FDE;
+    --bg:#F4F6FB; --card:#FFFFFF; --text:#14213D; --body:#3A4560; --muted:#6B7590; --line:#E2E7F0;
+    --danger:#B3261E; --danger-soft:#FBEAEA;
+    --radius:18px; --nav-h:64px;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body {
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--bg); color:var(--text); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; word-break:keep-all; overflow-wrap:anywhere;
+  }
+
+  /* ── 상단 ── */
+  .appbar { position:sticky; top:0; z-index:10; background:var(--navy); color:#fff;
+    padding:10px 8px 10px 16px; padding-top:calc(10px + env(safe-area-inset-top));
+    display:flex; align-items:center; justify-content:space-between; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-mark { width:30px; height:30px; border-radius:10px; background:var(--orange); display:grid; place-items:center; font-size:17px; }
+  .appbar h1 { margin:0; font-size:18px; font-weight:700; letter-spacing:-.2px; }
+  .icon-btn { background:transparent; border:0; color:#fff; width:44px; height:44px; border-radius:50%;
+    display:grid; place-items:center; cursor:pointer; }
+  .icon-btn:active { background:rgba(255,255,255,.15); }
+
+  main { max-width:640px; margin:0 auto; padding:16px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); }
+  .tab { display:none; }
+  .tab.active { display:block; }
+  .hello { background:var(--navy); color:#fff; border-radius:var(--radius); padding:18px 18px 16px; margin-bottom:16px; position:relative; overflow:hidden; }
+  .hello::after { content:''; position:absolute; right:-30px; top:-30px; width:120px; height:120px; border-radius:50%; background:var(--orange); opacity:.9; }
+  .hello b { color:var(--orange); }
+  .hello p { margin:0; position:relative; z-index:1; }
+  .hello .big { font-size:19px; font-weight:800; margin-bottom:4px; }
+  .hello .small { font-size:14px; opacity:.85; }
+  .hello .emoji { position:absolute; right:18px; top:16px; font-size:34px; z-index:1; }
+  .section-title { font-size:20px; font-weight:800; margin:4px 0 12px; letter-spacing:-.3px; }
+
+  /* ── 카드 ── */
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:10px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,32,91,.04); }
+  details.card > summary { list-style:none; padding:14px 16px; cursor:pointer; display:flex; gap:12px; align-items:center; }
+  details.card > summary::-webkit-details-marker { display:none; }
+  details.card[open] > summary { border-bottom:1px dashed var(--line); }
+  .sum-main { flex:1; min-width:0; }
+  .sum-title { font-weight:700; }
+  .sum-meta { font-size:13px; color:var(--muted); margin-top:2px; }
+  .chev { flex:none; color:var(--muted); transition:transform .2s; }
+  details[open] .chev { transform:rotate(180deg); }
+  .body { padding:14px 16px 16px; color:var(--body); }
+  .card.important { border-color:var(--orange); box-shadow:inset 4px 0 0 var(--orange); }
+  .ico { flex:none; width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:21px; background:var(--c-soft, var(--navy-soft)); }
+
+  .badge { display:inline-block; font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; margin-right:6px; vertical-align:1px; }
+  .badge.important { background:var(--orange); color:#3D2400; }
+  .badge.done { background:var(--navy-soft); color:var(--navy); }
+  .badge.wait { background:#EEF0F4; color:var(--muted); }
+
+  /* ── 복리후생 분류 타일 ── */
+  .tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px; }
+  .tile { border:1px solid var(--line); background:#fff; border-radius:16px; padding:12px 6px 10px; cursor:pointer; font:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--text); }
+  .tile .t-ico { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; font-size:22px; background:var(--c-soft, var(--navy-soft)); }
+  .tile .t-name { font-size:13px; font-weight:600; line-height:1.3; text-align:center; }
+  .tile .t-cnt { font-size:11px; color:var(--muted); }
+  .tile.active { border-color:var(--navy); box-shadow:0 0 0 2px var(--navy) inset; }
+  .tile.active .t-name { color:var(--navy); font-weight:800; }
+  .group-label { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:800; color:var(--navy); margin:18px 2px 10px; }
+  .group-label::before { content:''; width:6px; height:18px; border-radius:3px; background:var(--c, var(--orange)); }
+
+  /* ── 안내 본문 꾸미기 (시트의 글을 자동 변환) ── */
+  .rich p { margin:0 0 8px; }
+  .rich .gap { height:8px; }
+  .rich .sub { display:inline-block; margin:10px 0 6px; padding:4px 12px; border-radius:999px;
+    background:var(--c-soft, var(--navy-soft)); color:var(--navy); font-weight:800; font-size:14px; line-height:1.5; }
+  .rich .sub-desc { margin:0 0 4px 4px; font-size:15px; }
+  .rich .sub:first-child { margin-top:0; }
+  .rich ul.bul { list-style:none; margin:0 0 6px; padding:0; }
+  .rich ul.bul li { position:relative; padding-left:16px; margin:4px 0; }
+  .rich ul.bul li::before { content:''; position:absolute; left:3px; top:.62em; width:6px; height:6px; border-radius:50%; background:var(--c, var(--orange)); }
+  .rich ol.steps { list-style:none; margin:4px 0 8px; padding:0; counter-reset:s; }
+  .rich ol.steps li { position:relative; padding:6px 0 6px 36px; counter-increment:s; }
+  .rich ol.steps li::before { content:counter(s); position:absolute; left:0; top:6px; width:24px; height:24px; border-radius:50%;
+    background:var(--navy); color:#fff; font-size:13px; font-weight:800; display:grid; place-items:center; }
+  .rich ol.steps li:not(:last-child)::after { content:''; position:absolute; left:11px; top:32px; bottom:-4px; width:2px; background:var(--line); }
+  .rich .path { background:#F7F8FC; border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:6px 0 8px; }
+  .rich .path .lbl { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:4px; }
+  .rich .path .crumbs { display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
+  .rich .path .crumb { background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 8px; font-size:13px; font-weight:600; color:var(--navy); }
+  .rich .path .sep { color:var(--orange); font-weight:800; font-size:13px; }
+  .rich .tip { display:flex; gap:8px; background:var(--orange-soft); border-radius:12px; padding:10px 12px; margin:6px 0 8px; font-size:14px; color:#5A3A00; }
+  .rich .contact { display:flex; gap:10px; align-items:center; background:var(--navy); color:#fff; border-radius:14px; padding:10px 14px; margin-top:12px; font-size:14px; }
+  .rich .contact .c-ico { width:30px; height:30px; border-radius:50%; background:var(--orange); display:grid; place-items:center; flex:none; }
+  .rich .indent { color:var(--muted); font-size:14px; margin:-2px 0 6px 16px; }
+  .rich b.num { color:var(--navy); background:linear-gradient(transparent 60%, rgba(255,158,27,.35) 60%); font-weight:800; padding:0 1px; }
+  .link-btn { display:inline-flex; align-items:center; gap:4px; margin-top:12px; padding:8px 14px; border-radius:999px; background:var(--orange); color:#3D2400; font-weight:700; text-decoration:none; font-size:14px; }
+
+  /* ── 질문하기 ── */
+  .seg { display:grid; grid-template-columns:repeat(3,1fr); background:#E4E9F2; border-radius:14px; padding:4px; margin-bottom:16px; }
+  .seg button { border:0; background:transparent; font:inherit; font-size:14px; padding:9px 0; border-radius:10px; color:var(--muted); cursor:pointer; }
+  .seg button.active { background:#fff; color:var(--navy); font-weight:800; box-shadow:0 1px 3px rgba(0,32,91,.12); }
+  .pane { display:none; }
+  .pane.active { display:block; }
+  .q-mark { color:var(--orange-deep); font-weight:900; margin-right:6px; }
+
+  .form { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
+  .field { margin-bottom:14px; }
+  label { display:block; font-size:14px; font-weight:700; margin:0 0 6px; }
+  .opt { font-weight:400; color:var(--muted); }
+  input, textarea { width:100%; font:inherit; font-size:16px; padding:12px; border:1px solid var(--line);
+    border-radius:12px; background:#fff; color:var(--text); }
+  input:focus, textarea:focus { outline:2px solid var(--navy); outline-offset:-1px; border-color:var(--navy); }
+  textarea { min-height:140px; resize:vertical; }
+  .hint { font-size:13px; color:var(--muted); margin:6px 0 0; }
+  .btn { width:100%; border:0; background:var(--navy); color:#fff; font:inherit; font-weight:800; font-size:16px;
+    padding:14px; border-radius:14px; cursor:pointer; }
+  .btn:active { background:var(--navy-dark); }
+  .btn:disabled { opacity:.55; }
+  .row { display:flex; gap:8px; }
+  .row input { flex:1; min-width:0; letter-spacing:2px; }
+  .row .btn { width:auto; padding:0 22px; flex:none; }
+
+  .msg { border-radius:var(--radius); padding:16px; margin-top:14px; }
+  .msg.ok { background:var(--orange-soft); }
+  .msg.err { background:var(--danger-soft); color:var(--danger); }
+  .ticket { font-size:34px; font-weight:900; letter-spacing:4px; color:var(--navy); margin:4px 0; }
+  .result { margin-top:14px; padding:16px; }
+  .result .label { font-weight:800; margin-top:12px; }
+  .answer { background:var(--navy-soft); border-radius:12px; padding:12px; margin-top:6px; }
+  .recent { margin-top:12px; }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-top:6px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; border:1px solid var(--line); background:#fff; color:var(--text); padding:6px 12px;
+    border-radius:999px; font:inherit; font-size:13px; cursor:pointer; }
+
+  .empty { text-align:center; color:var(--muted); padding:40px 16px; }
+  .empty .btn { width:auto; padding:10px 20px; margin-top:12px; font-size:15px; }
+  .spinner { width:28px; height:28px; border:3px solid var(--navy-soft); border-top-color:var(--orange);
+    border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 12px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── 일정 (달력) ── */
+  .cal { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:12px 10px 10px; }
+  .cal-head { display:flex; align-items:center; justify-content:space-between; padding:0 4px 8px; }
+  .cal-head h3 { margin:0; font-size:18px; font-weight:800; color:var(--navy); }
+  .cal-nav { border:1px solid var(--line); background:#fff; width:36px; height:36px; border-radius:12px; font-size:18px; color:var(--navy); cursor:pointer; }
+  .cal-today { border:0; background:var(--orange-soft); color:#7A4A00; font:inherit; font-size:13px; font-weight:700; padding:6px 10px; border-radius:999px; cursor:pointer; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-wd { text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:4px 0; }
+  .cal-wd.sun, .cal-day.off .n { color:#E0453A; }
+  .cal-wd.sat { color:var(--blue); }
+  .cal-day { min-height:54px; border:0; background:transparent; border-radius:12px; padding:4px 2px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; font:inherit; color:var(--text); min-width:0; }
+  .cal-day.blank { cursor:default; }
+  .cal-day .n { font-size:14px; font-weight:600; width:26px; height:26px; line-height:26px; border-radius:50%; text-align:center; }
+  .cal-day.sat:not(.off) .n { color:var(--blue); }
+  .cal-day.today .n { background:var(--navy); color:#fff; }
+  .cal-day.sel { background:var(--orange-soft); }
+  .cal-day .hname { font-size:9px; color:#E0453A; line-height:1.1; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .cal-day .dots { display:flex; gap:2px; justify-content:center; flex-wrap:wrap; }
+  .cal-day .dot { width:6px; height:6px; border-radius:50%; background:var(--c); }
+  .legend { display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--muted); padding:8px 4px 0; }
+  .legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:4px; }
+  .ev-head { display:flex; align-items:center; justify-content:space-between; margin:18px 2px 10px; }
+  .ev-head h3 { margin:0; font-size:16px; font-weight:800; }
+  .ev-head button { border:0; background:transparent; color:var(--muted); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; }
+  .ev { display:flex; gap:12px; align-items:flex-start; background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; margin-bottom:8px; }
+  .ev .dbox { flex:none; width:46px; text-align:center; border-radius:12px; padding:4px 0; background:var(--c-soft); color:var(--navy); }
+  .ev .dbox b { display:block; font-size:19px; line-height:1.2; }
+  .ev .dbox small { font-size:11px; font-weight:700; }
+  .ev .dbox.range b { font-size:12px; padding:4px 0; }
+  .ev .ev-main { flex:1; min-width:0; }
+  .ev .ev-title { font-weight:800; }
+  .ev .ev-cat { display:inline-block; font-size:11px; font-weight:800; padding:1px 8px; border-radius:999px; background:var(--c-soft); color:var(--navy); margin-left:4px; vertical-align:2px; }
+  .ev .ev-memo { font-size:13px; color:var(--muted); margin-top:2px; }
+  .ev .ev-shift { display:inline-block; font-size:12px; font-weight:700; color:#7A4A00; background:var(--orange-soft); border-radius:8px; padding:2px 8px; margin-top:6px; }
+  .upcoming { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px 6px; margin-bottom:16px; }
+  .upcoming h3 { margin:0 0 8px; font-size:15px; font-weight:800; display:flex; justify-content:space-between; align-items:center; }
+  .upcoming h3 button { border:0; background:transparent; color:var(--navy); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+  .upcoming .ev { border:0; padding:8px 0; margin:0; border-top:1px dashed var(--line); border-radius:0; }
+  .upcoming h3 + .ev { border-top:0; }
+  .dday { flex:none; font-size:12px; font-weight:800; color:#3D2400; background:var(--orange); border-radius:999px; padding:2px 8px; align-self:center; }
+
+  /* ── 하단 탭 ── */
+  nav.tabbar { position:fixed; left:0; right:0; bottom:0; z-index:10; background:#fff; border-top:1px solid var(--line);
+    display:grid; grid-template-columns:repeat(4,1fr); padding-bottom:env(safe-area-inset-bottom); }
+  nav.tabbar button { position:relative; border:0; background:transparent; height:var(--nav-h); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:2px; font:inherit; font-size:12px; color:var(--muted); cursor:pointer; }
+  nav.tabbar button.active { color:var(--navy); font-weight:800; }
+  nav.tabbar button.active::before { content:''; position:absolute; top:0; left:30%; right:30%; height:3px; border-radius:0 0 3px 3px; background:var(--orange); }
+</style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🎁</div>
+      <h1>복리후생 안내</h1>
+    </div>
+    <button class="icon-btn" id="refresh" aria-label="새로고침">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="tab active" id="tab-notice">
+      <div class="hello">
+        <span class="emoji" aria-hidden="true">👋</span>
+        <p class="big">오늘도 수고 많으세요!</p>
+        <p class="small">새 소식과 <b>복리후생</b>을 여기서 한 번에 확인하세요.</p>
+      </div>
+      <div id="upcoming"></div>
+      <h2 class="section-title">공지</h2>
+      <div id="notice-list"></div>
+    </section>
+
+    <section class="tab" id="tab-benefit">
+      <h2 class="section-title">어떤 혜택이 궁금하세요?</h2>
+      <div class="tiles" id="cat-tiles"></div>
+      <div id="benefit-list"></div>
+    </section>
+
+    <section class="tab" id="tab-schedule">
+      <h2 class="section-title">복리후생 일정</h2>
+      <div class="cal">
+        <div class="cal-head">
+          <button class="cal-nav" id="cal-prev" aria-label="이전 달">‹</button>
+          <h3 id="cal-title"></h3>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="cal-today" id="cal-now">오늘</button>
+            <button class="cal-nav" id="cal-next" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="legend" id="cal-legend"></div>
+      </div>
+      <div class="ev-head"><h3 id="ev-title">이번 달 일정</h3><button id="ev-all" hidden>달 전체 보기</button></div>
+      <div id="ev-list"></div>
+    </section>
+
+    <section class="tab" id="tab-qna">
+      <h2 class="section-title">질문하기</h2>
+      <div class="seg">
+        <button class="active" data-pane="faq">자주 묻는 질문</button>
+        <button data-pane="ask">질문 남기기</button>
+        <button data-pane="check">답변 확인</button>
+      </div>
+
+      <div class="pane active" id="pane-faq">
+        <div id="faq-list"></div>
+      </div>
+
+      <div class="pane" id="pane-ask">
+        <form class="form" id="ask-form" novalidate>
+          <div class="field">
+            <label for="dept">부서 <span class="opt">(선택)</span></label>
+            <input id="dept" maxlength="50" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="name">이름 <span class="opt">(선택)</span></label>
+            <input id="name" maxlength="30" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="question">질문</label>
+            <textarea id="question" maxlength="1000" placeholder="궁금한 내용을 편하게 적어 주세요."></textarea>
+            <p class="hint">부서·이름은 담당자만 보며 앱 화면에는 나오지 않습니다.</p>
+          </div>
+          <button class="btn" type="submit" id="ask-btn">질문 보내기</button>
+        </form>
+        <div id="ask-result"></div>
+      </div>
+
+      <div class="pane" id="pane-check">
+        <form class="form" id="check-form" novalidate>
+          <label for="ticket">접수번호 6자리</label>
+          <div class="row">
+            <input id="ticket" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="123456">
+            <button class="btn" type="submit" id="check-btn">확인</button>
+          </div>
+          <div class="recent" id="recent"></div>
+        </form>
+        <div id="check-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="active" data-tab="notice">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l15-6v14L3 13z"/><path d="M7 12.5V18a2 2 0 0 0 4 0v-4"/></svg>
+      공지
+    </button>
+    <button data-tab="benefit">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-2-4-6-4-6-1.5S9 8 12 8c3 0 6 0 6-1.5S14 4 12 8z"/></svg>
+      복리후생
+    </button>
+    <button data-tab="schedule">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+      일정
+    </button>
+    <button data-tab="qna">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5"/><path d="M12 16h.01"/></svg>
+      질문하기
+    </button>
+  </nav>
+
+<script>
+(function () {
+  var API = "https://script.google.com/macros/s/AKfycby1OC9KuWvA3Y6hCYNmHw_gb1atuJ6JZ1LSKoPmqsQP_kcyKgVzwut94XwciKlVOWcJ/exec";
+  function get(params) { return fetch(API + '?' + new URLSearchParams(params)).then(function (r) { return r.json(); }); }
+  function post(body) {
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); });
+  }
+  var api = {
+    getData: function () { return get({ api: 'data' }); },
+    checkQuestion: function (t) { return get({ api: 'check', ticket: t }); },
+    submitQuestion: function (f) { return post({ api: 'submit', form: f }); },
+  };
+  function make(ok, fail) {
+    return new Proxy({}, { get: function (_, k) {
+      if (k === 'withSuccessHandler') return function (f) { return make(f, fail); };
+      if (k === 'withFailureHandler') return function (f) { return make(ok, f); };
+      return function () {
+        api[k].apply(null, arguments)
+          .then(function (res) {
+            if (!res || !res.ok) throw new Error((res && res.error) || '잠시 후 다시 시도해 주세요.');
+            ok && ok(res.data);
+          })
+          .catch(function (e) {
+            fail && fail(e instanceof TypeError ? new Error('인터넷 연결을 확인해 주세요.') : e);
+          });
+      };
+    } });
+  }
+  window.google = { script: { run: make() } };
+})();
+</script>
+<script>
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => document.querySelectorAll(sel);
+  const state = { data: null, cat: '전체' };
+  const STORE_KEY = 'welfare.tickets';
+  const CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+  /* 분류별 아이콘·색. 시트에 새 분류를 만들면 자동으로 기본 아이콘·색이 붙는다. */
+  const CAT_STYLE = {
+    '시차출퇴근제':       { icon: '⏰', c: '#418FDE' },
+    '경조금':             { icon: '💐', c: '#FF7F32' },
+    '휴가':               { icon: '🏖️', c: '#FFC56E' },
+    '임신·출산·육아':     { icon: '👶', c: '#7D55C7' },
+    '휴직·근로시간 단축': { icon: '🌿', c: '#418FDE' },
+    '학자금':             { icon: '🎓', c: '#7D55C7' },
+    '사택·주거':          { icon: '🏡', c: '#FF7F32' },
+    '사내동호회':         { icon: '⚽', c: '#FFC56E' },
+  };
+  const FALLBACK = [['📌', '#FF9E1B'], ['✨', '#418FDE'], ['🧡', '#7D55C7'], ['🍀', '#FF7F32']];
+  function catStyle(cat, i) {
+    if (CAT_STYLE[cat]) return CAT_STYLE[cat];
+    const f = FALLBACK[i % FALLBACK.length];
+    return { icon: f[0], c: f[1] };
+  }
+  function catVars(st) { return `--c:${st.c};--c-soft:${st.c}26`; }
+
+  /* ── 공통 ── */
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function nl(v) { return esc(v).replace(/\n/g, '<br>'); }
+  function isHttp(u) { return /^https?:\/\//i.test(u || ''); }
+  function errText(err) { return (err && err.message) || '잠시 후 다시 시도해 주세요.'; }
+
+  /* 숫자+단위(7일, 250만원, 30%)를 형광펜으로 강조. 이스케이프된 문자열에만 쓴다. */
+  function mark(escaped) {
+    return escaped.replace(/(\d[\d,.]*\s?(?:만원|원|일|주|개월|년|시간|%|회|학기|평|km|배|세|명))/g, '<b class="num">$1</b>');
+  }
+  function inline(t) { return mark(esc(t)); }
+
+  /* 시트에 쓴 글을 보기 좋게 바꾼다. 규칙:
+     ■ 제목 → 소제목 배지 / • 항목 → 점 목록 / 1. 단계 → 번호 단계 / 메뉴:·모바일:·결재: A > B → 경로 버튼
+     예)·※ → 팁 상자 / 문의: → 연락처 상자 / 공백으로 시작 → 보충 설명 */
+  function rich(text) {
+    const lines = String(text || '').split('\n');
+    let html = '', list = null;
+    const close = () => { if (list) { html += `</${list}>`; list = null; } };
+    const open = tag => { if (list !== tag) { close(); html += tag === 'ul' ? '<ul class="bul">' : '<ol class="steps">'; list = tag; } };
+    /* '■ 회갑·칠순: 휴가 1일 / 30만원'처럼 콜론 뒤 내용이 있으면 배지는 앞부분만, 내용은 아래 줄로 */
+    const subHtml = t => {
+      const k = t.indexOf(':');
+      if (k > 0 && k < 40 && t.slice(k + 1).trim()) {
+        return `<div class="sub">${esc(t.slice(0, k).trim())}</div><div class="sub-desc">${inline(t.slice(k + 1).trim())}</div>`;
+      }
+      return `<div class="sub">${inline(t)}</div>`;
+    };
+    const crumbs = s => s.split(/\s+>\s+/).map(p => `<span class="crumb">${esc(p)}</span>`).join('<span class="sep">›</span>');
+
+    lines.forEach(raw => {
+      const line = raw.trim();
+      let m;
+      if (!line) { close(); html += '<div class="gap"></div>'; return; }
+      if (/^\s{2,}/.test(raw)) { close(); html += `<div class="indent">${inline(line)}</div>`; return; }
+      if ((m = line.match(/^■\s*(.+)$/))) { close(); html += subHtml(m[1]); return; }
+      if ((m = line.match(/^[•·\-]\s*(.+)$/))) { open('ul'); html += `<li>${inline(m[1])}</li>`; return; }
+      if ((m = line.match(/^\d+\.\s+(.+)$/))) { open('ol'); html += `<li>${inline(m[1])}</li>`; return; }
+      close();
+      if ((m = line.match(/^(메뉴|모바일|결재)\s*:\s*(.+)$/))) {
+        const lbl = { '메뉴': '📱 어디서 신청하나요?', '모바일': '📲 모바일에서는', '결재': '✅ 결재 순서' }[m[1]];
+        html += `<div class="path"><div class="lbl">${lbl}</div><div class="crumbs">${crumbs(m[2])}</div></div>`;
+        return;
+      }
+      if ((m = line.match(/^문의\s*:\s*(.+)$/))) {
+        html += `<div class="contact"><span class="c-ico" aria-hidden="true">☎</span><span><b>문의</b> ${esc(m[1])}</span></div>`;
+        return;
+      }
+      if (/^(예\)|※)/.test(line)) { html += `<div class="tip"><span aria-hidden="true">💡</span><span>${inline(line.replace(/^(예\)|※)\s*/, ''))}</span></div>`; return; }
+      if ((m = line.match(/^([①-⑩])\s*(.+)$/))) { html += subHtml(m[1] + ' ' + m[2]); return; }
+      html += `<p>${inline(line)}</p>`;
+    });
+    close();
+    return `<div class="rich">${html}</div>`;
+  }
+
+  function call(fn, ...args) {
+    return new Promise((resolve, reject) => {
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](...args);
+    });
+  }
+
+  function emptyHtml(text) { return `<div class="empty">${esc(text)}</div>`; }
+  function loadingHtml() { return '<div class="empty"><div class="spinner"></div>불러오는 중…</div>'; }
+  function showMsg(target, kind, text) { $(target).innerHTML = `<div class="msg ${kind}">${esc(text)}</div>`; }
+
+  /* ── 데이터 불러오기 ── */
+
+  function load() {
+    ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = loadingHtml());
+    $('#cat-tiles').innerHTML = '';
+    call('getData')
+      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); })
+      .catch(err => {
+        const html = `<div class="empty">불러오지 못했습니다.<br>${esc(errText(err))}<br><button class="btn" type="button" data-retry>다시 시도</button></div>`;
+        ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = html);
+      });
+  }
+
+  function renderNotices() {
+    const list = state.data.notices;
+    $('#notice-list').innerHTML = list.length ? list.map(n => `
+      <details class="card${n.important ? ' important' : ''}"${n.important ? ' open' : ''}>
+        <summary>
+          <div class="ico" style="--c-soft:${n.important ? '#FFF2DF' : '#E8EDF7'}" aria-hidden="true">${n.important ? '📣' : '📝'}</div>
+          <div class="sum-main">
+            <div class="sum-title">${n.important ? '<span class="badge important">중요</span>' : ''}${esc(n.title)}</div>
+            ${n.date ? `<div class="sum-meta">${esc(n.date)}</div>` : ''}
+          </div>${CHEV}
+        </summary>
+        <div class="body">${rich(n.content)}</div>
+      </details>`).join('') : emptyHtml('등록된 공지가 없습니다.');
+  }
+
+  function benefitCard(b, st) {
+    return `
+      <details class="card" style="${catVars(st)}">
+        <summary>
+          <div class="ico" aria-hidden="true">${st.icon}</div>
+          <div class="sum-main"><div class="sum-title">${esc(b.title)}</div></div>${CHEV}
+        </summary>
+        <div class="body">${rich(b.content)}
+          ${isHttp(b.link) ? `<a class="link-btn" href="${esc(b.link)}" target="_blank" rel="noopener">자세히 보기 →</a>` : ''}
+        </div>
+      </details>`;
+  }
+
+  function renderBenefits() {
+    const items = state.data.benefits;
+    const cats = [...new Set(items.map(b => b.category))];
+    const styles = {};
+    cats.forEach((c, i) => styles[c] = catStyle(c, i));
+    if (!cats.includes(state.cat)) state.cat = '전체';
+
+    if (!items.length) {
+      $('#cat-tiles').innerHTML = '';
+      $('#benefit-list').innerHTML = emptyHtml('등록된 복리후생 안내가 없습니다.');
+      return;
+    }
+
+    const tile = (c, icon, cnt, vars) => `
+      <button class="tile${c === state.cat ? ' active' : ''}" data-cat="${esc(c)}" style="${vars}">
+        <span class="t-ico" aria-hidden="true">${icon}</span>
+        <span class="t-name">${esc(c)}</span>
+        <span class="t-cnt">${cnt}개</span>
+      </button>`;
+    $('#cat-tiles').innerHTML = cats.length > 1
+      ? tile('전체', '✨', items.length, '--c-soft:#FFF2DF') +
+        cats.map(c => tile(c, styles[c].icon, items.filter(b => b.category === c).length, catVars(styles[c]))).join('')
+      : '';
+
+    const shown = state.cat === '전체' ? cats : [state.cat];
+    $('#benefit-list').innerHTML = shown.map(c =>
+      `<div class="group-label" style="${catVars(styles[c])}">${styles[c].icon} ${esc(c)}</div>` +
+      items.filter(b => b.category === c).map(b => benefitCard(b, styles[c])).join('')
+    ).join('');
+  }
+
+  function renderFaq() {
+    const list = state.data.faq;
+    $('#faq-list').innerHTML = list.length ? list.map(f => `
+      <details class="card">
+        <summary><div class="sum-main"><div class="sum-title"><span class="q-mark">Q.</span>${esc(f.question)}</div></div>${CHEV}</summary>
+        <div class="body"><div class="answer">${nl(f.answer)}</div></div>
+      </details>`).join('') : emptyHtml('아직 등록된 자주 묻는 질문이 없습니다.');
+  }
+
+  /* ── 일정 (달력) ──
+     시트 [일정]의 규칙을 달력 날짜로 펼친다. [휴일이면]이 전/다음 영업일이면 주말과 [휴일] 시트 날짜를 피해 옮긴다. */
+
+  const EV_COLOR = { '급여': '#FF9E1B', '대출': '#418FDE', '포상': '#7D55C7', '마감': '#FF7F32', '복리후생': '#00205B', '행사': '#FFC56E' };
+  const WD = ['일', '월', '화', '수', '목', '금', '토'];
+  const pad2 = n => String(n).padStart(2, '0');
+  const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const parseYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const md = s => { const d = parseYmd(s); return `${d.getMonth() + 1}/${d.getDate()}(${WD[d.getDay()]})`; };
+  const isYmd = s => /^\d{4}-\d{2}-\d{2}$/.test(s || '');
+  const cal = { y: 0, m: 0, sel: '' };
+  let holidayMap = new Map();
+
+  function evColor(cat) { return EV_COLOR[cat] || '#00205B'; }
+  function evVars(cat) { const c = evColor(cat); return `--c:${c};--c-soft:${c}22`; }
+  function isOff(d) { return d.getDay() === 0 || d.getDay() === 6 || holidayMap.has(ymd(d)); }
+  function shiftDay(d, rule) {
+    const step = /전/.test(rule) ? -1 : /다음/.test(rule) ? 1 : 0;
+    if (!step) return d;
+    const x = new Date(d);
+    for (let i = 0; i < 14 && isOff(x); i++) x.setDate(x.getDate() + step);
+    return x;
+  }
+
+  /* 해당 달의 일정. kind: one(하루), start/end(기간 시작·끝), ongoing(이 달 내내 진행 중) */
+  function monthItems(y, m) {
+    const first = ymd(new Date(y, m, 1)), lastD = new Date(y, m + 1, 0), last = ymd(lastD);
+    const inMonth = s => s >= first && s <= last;
+    const out = [];
+    ((state.data && state.data.events) || []).forEach(ev => {
+      if (ev.repeat === '매월') {
+        if (!ev.day) return;
+        const base = new Date(y, m, Math.min(ev.day, lastD.getDate()));
+        const adj = shiftDay(base, ev.shift);
+        out.push({ ev, date: ymd(adj), orig: ymd(adj) !== ymd(base) ? ymd(base) : '', kind: 'one' });
+        return;
+      }
+      if (!isYmd(ev.date)) return;
+      if (isYmd(ev.end) && ev.end > ev.date) {
+        if (inMonth(ev.date)) out.push({ ev, date: ev.date, kind: 'start' });
+        if (inMonth(ev.end)) out.push({ ev, date: ev.end, kind: 'end' });
+        if (ev.date < first && ev.end > last) out.push({ ev, date: '', kind: 'ongoing' });
+        return;
+      }
+      const adj = shiftDay(parseYmd(ev.date), ev.shift);
+      out.push({ ev, date: ymd(adj), orig: ymd(adj) !== ev.date ? ev.date : '', kind: 'one' });
+    });
+    return out.filter(it => it.kind === 'ongoing' || inMonth(it.date))
+      .sort((a, b) => (a.date || '0').localeCompare(b.date || '0'));
+  }
+
+  function evCard(it, dday) {
+    const ev = it.ev;
+    let box;
+    if (it.kind === 'ongoing') {
+      box = `<div class="dbox range"><b>${esc(md(ev.date).split('(')[0])}<br>~${esc(md(ev.end).split('(')[0])}</b></div>`;
+    } else {
+      const d = parseYmd(it.date);
+      box = `<div class="dbox"><b>${d.getDate()}</b><small>${WD[d.getDay()]}</small></div>`;
+    }
+    const tag = it.kind === 'start' ? ' 시작' : it.kind === 'end' ? ' 종료' : it.kind === 'ongoing' ? ' 진행 중' : '';
+    const range = isYmd(ev.end) && ev.end > ev.date ? `<div class="ev-memo">기간 ${esc(md(ev.date))} ~ ${esc(md(ev.end))}</div>` : '';
+    const shift = it.orig ? `<span class="ev-shift">원래 ${esc(md(it.orig))} → 휴일이라 ${esc(md(it.date))}</span>` : '';
+    const badge = dday != null ? `<span class="dday">${dday === 0 ? '오늘' : 'D-' + dday}</span>` : '';
+    return `<div class="ev" style="${evVars(ev.cat)}">${box}
+      <div class="ev-main">
+        <div class="ev-title">${esc(ev.title)}${esc(tag)}${ev.cat ? `<span class="ev-cat">${esc(ev.cat)}</span>` : ''}</div>
+        ${range}${ev.memo ? `<div class="ev-memo">${esc(ev.memo)}</div>` : ''}${shift}
+      </div>${badge}</div>`;
+  }
+
+  function renderCalendar() {
+    const { y, m } = cal;
+    const items = monthItems(y, m);
+    const byDate = {};
+    items.forEach(it => { if (it.date) (byDate[it.date] = byDate[it.date] || []).push(it); });
+    const today = ymd(new Date());
+    $('#cal-title').textContent = `${y}년 ${m + 1}월`;
+
+    let html = WD.map((w, i) => `<div class="cal-wd${i === 0 ? ' sun' : i === 6 ? ' sat' : ''}">${w}</div>`).join('');
+    const startPad = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < startPad; i++) html += '<div class="cal-day blank"></div>';
+    for (let dnum = 1; dnum <= days; dnum++) {
+      const d = new Date(y, m, dnum), key = ymd(d), list = byDate[key] || [];
+      const cls = ['cal-day', isOff(d) ? 'off' : '', d.getDay() === 6 ? 'sat' : '', key === today ? 'today' : '', key === cal.sel ? 'sel' : ''].join(' ');
+      const hname = holidayMap.get(key);
+      html += `<button class="${cls}" data-date="${key}"><span class="n">${dnum}</span>`
+        + (hname ? `<span class="hname">${esc(hname)}</span>` : '')
+        + `<span class="dots">${list.slice(0, 4).map(it => `<span class="dot" style="--c:${evColor(it.ev.cat)}"></span>`).join('')}</span></button>`;
+    }
+    $('#cal-grid').innerHTML = html;
+
+    const cats = [...new Set(((state.data && state.data.events) || []).map(e => e.cat).filter(Boolean))];
+    $('#cal-legend').innerHTML = cats.map(c => `<span style="--c:${evColor(c)}">${esc(c)}</span>`).join('');
+
+    const shown = cal.sel ? items.filter(it => it.date === cal.sel) : items;
+    $('#ev-title').textContent = cal.sel ? `${md(cal.sel)} 일정` : `${m + 1}월 일정`;
+    $('#ev-all').hidden = !cal.sel;
+    $('#ev-list').innerHTML = shown.length ? shown.map(it => evCard(it)).join('') : emptyHtml(cal.sel ? '이 날은 일정이 없어요.' : '이번 달 일정이 없어요.');
+  }
+
+  function renderUpcoming() {
+    const now = new Date(), today = ymd(now);
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const items = [...monthItems(now.getFullYear(), now.getMonth()), ...monthItems(next.getFullYear(), next.getMonth())]
+      .filter(it => it.date && it.date >= today).slice(0, 3);
+    if (!items.length) { $('#upcoming').innerHTML = ''; return; }
+    const t0 = parseYmd(today).getTime();
+    $('#upcoming').innerHTML = `<div class="upcoming"><h3>📅 다가오는 일정 <button type="button" data-goto="schedule">달력 보기 ›</button></h3>`
+      + items.map(it => evCard(it, Math.round((parseYmd(it.date).getTime() - t0) / 86400000))).join('') + '</div>';
+  }
+
+  function initSchedule() {
+    holidayMap = new Map((state.data.holidays || []).map(h => [h.date, h.name]));
+    if (!cal.y) { const n = new Date(); cal.y = n.getFullYear(); cal.m = n.getMonth(); }
+    renderCalendar();
+    renderUpcoming();
+  }
+
+  function moveMonth(step) {
+    const d = new Date(cal.y, cal.m + step, 1);
+    cal.y = d.getFullYear(); cal.m = d.getMonth(); cal.sel = '';
+    renderCalendar();
+  }
+
+  /* ── 탭 ── */
+
+  function showTab(name) {
+    $$('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + name));
+    $$('nav.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    window.scrollTo(0, 0);
+  }
+
+  function showPane(name) {
+    $$('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
+    $$('.seg button').forEach(b => b.classList.toggle('active', b.dataset.pane === name));
+  }
+
+  /* ── 내 접수번호 (이 기기에만 저장) ── */
+
+  function getTickets() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; }
+  }
+  function saveTicket(t) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify([t, ...getTickets().filter(x => x !== t)].slice(0, 5))); } catch (e) {}
+  }
+  function renderRecent() {
+    const list = getTickets();
+    $('#recent').innerHTML = list.length ? `<div class="hint">이 휴대폰에서 남긴 질문</div>
+      <div class="chips">${list.map(t => `<button type="button" class="chip" data-ticket="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : '';
+  }
+
+  /* ── 질문 남기기 ── */
+
+  $('#ask-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const question = $('#question').value.trim();
+    if (!question) { showMsg('#ask-result', 'err', '질문 내용을 입력해 주세요.'); $('#question').focus(); return; }
+
+    const btn = $('#ask-btn');
+    btn.disabled = true; btn.textContent = '보내는 중…';
+    call('submitQuestion', { dept: $('#dept').value, name: $('#name').value, question })
+      .then(r => {
+        saveTicket(r.ticket);
+        renderRecent();
+        $('#ask-form').reset();
+        $('#ask-result').innerHTML = `
+          <div class="msg ok">
+            질문이 접수되었어요 🙌 접수번호를 꼭 기록해 두세요.
+            <div class="ticket">${esc(r.ticket)}</div>
+            <div class="hint">답변이 등록되면 '답변 확인'에서 이 번호로 볼 수 있습니다.</div>
+          </div>`;
+      })
+      .catch(err => showMsg('#ask-result', 'err', errText(err)))
+      .finally(() => { btn.disabled = false; btn.textContent = '질문 보내기'; });
+  });
+
+  /* ── 답변 확인 ── */
+
+  function check(ticket) {
+    if (!/^\d{6}$/.test(ticket)) { showMsg('#check-result', 'err', '접수번호 6자리를 입력해 주세요.'); return; }
+    const btn = $('#check-btn');
+    btn.disabled = true;
+    $('#check-result').innerHTML = loadingHtml();
+    call('checkQuestion', ticket)
+      .then(r => {
+        if (!r.found) { showMsg('#check-result', 'err', '해당 접수번호의 질문을 찾을 수 없습니다. 번호를 다시 확인해 주세요.'); return; }
+        $('#check-result').innerHTML = `
+          <div class="card result">
+            ${r.answer ? '<span class="badge done">답변 완료</span>' : '<span class="badge wait">답변 대기</span>'}
+            <div class="sum-meta">접수번호 ${esc(r.ticket)} · ${esc(r.createdAt)}</div>
+            <div class="label">질문</div>
+            <div style="color:var(--body)">${nl(r.question)}</div>
+            ${r.answer
+              ? `<div class="label">답변${r.answeredAt ? ` <span class="sum-meta">${esc(r.answeredAt)}</span>` : ''}</div>
+                 <div class="answer">${nl(r.answer)}</div>`
+              : '<p class="hint">아직 답변이 등록되지 않았습니다. 조금만 기다려 주세요 🙏</p>'}
+          </div>`;
+      })
+      .catch(err => showMsg('#check-result', 'err', errText(err)))
+      .finally(() => { btn.disabled = false; });
+  }
+
+  $('#check-form').addEventListener('submit', e => { e.preventDefault(); check($('#ticket').value.trim()); });
+  $('#ticket').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+  $('#recent').addEventListener('click', e => {
+    const b = e.target.closest('[data-ticket]');
+    if (!b) return;
+    $('#ticket').value = b.dataset.ticket;
+    check(b.dataset.ticket);
+  });
+
+  /* ── 이벤트 연결 ── */
+
+  $$('nav.tabbar button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  $$('.seg button').forEach(b => b.addEventListener('click', () => showPane(b.dataset.pane)));
+  $('#cat-tiles').addEventListener('click', e => {
+    const b = e.target.closest('[data-cat]');
+    if (!b) return;
+    state.cat = b.dataset.cat;
+    renderBenefits();
+    $('#benefit-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  $('#refresh').addEventListener('click', load);
+  $('#cal-prev').addEventListener('click', () => moveMonth(-1));
+  $('#cal-next').addEventListener('click', () => moveMonth(1));
+  $('#cal-now').addEventListener('click', () => { const n = new Date(); cal.y = n.getFullYear(); cal.m = n.getMonth(); cal.sel = ''; renderCalendar(); });
+  $('#cal-grid').addEventListener('click', e => {
+    const b = e.target.closest('[data-date]');
+    if (!b) return;
+    cal.sel = cal.sel === b.dataset.date ? '' : b.dataset.date;
+    renderCalendar();
+  });
+  $('#ev-all').addEventListener('click', () => { cal.sel = ''; renderCalendar(); });
+  document.addEventListener('click', e => { const g = e.target.closest('[data-goto]'); if (g) showTab(g.dataset.goto); });
+  document.addEventListener('click', e => { if (e.target.closest('[data-retry]')) load(); });
+
+  renderRecent();
+  load();
+</script>
+
+<div id="install" class="install" hidden>
+  <img src="icons/icon-192.png" alt="">
+  <div class="ins-txt"><b>홈 화면에 추가하면 앱처럼 쓸 수 있어요</b><span id="ins-how"></span></div>
+  <button id="ins-btn" type="button" hidden>추가</button>
+  <button id="ins-x" type="button" aria-label="닫기">✕</button>
+</div>
+<script>
+(function () {
+  var KEY = 'welfare.install.dismissed';
+  var box = document.getElementById('install');
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  var dismissed = false;
+  try { dismissed = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  var deferred = null;
+
+  function show(how, withButton) {
+    if (standalone || dismissed) return;
+    document.getElementById('ins-how').textContent = how;
+    document.getElementById('ins-btn').hidden = !withButton;
+    box.hidden = false;
+  }
+  function hide(remember) {
+    box.hidden = true;
+    if (remember) { try { localStorage.setItem(KEY, '1'); } catch (e) {} }
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    show('추가 버튼을 누르면 바로 설치돼요.', true);
+  });
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    show('사파리 아래쪽 공유 버튼(□↑)을 누르고 "홈 화면에 추가"를 고르세요.', false);
+  }
+  document.getElementById('ins-btn').addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; hide(true); });
+  });
+  document.getElementById('ins-x').addEventListener('click', function () { hide(true); });
+  window.addEventListener('appinstalled', function () { hide(true); });
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>
