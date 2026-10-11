@@ -1,7 +1,7 @@
 /* 복리후생 웹앱 서비스워커
  * 화면 파일만 저장해 두고(네트워크 우선), 데이터(script.google.com)는 항상 새로 받는다.
  * 화면을 고쳐 올릴 때 VERSION을 올린다. */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'welfare-' + VERSION;
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 

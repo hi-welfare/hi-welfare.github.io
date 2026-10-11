@@ -560,12 +560,25 @@
 
   /* ── 데이터 불러오기 ── */
 
+  const DATA_KEY = 'welfare.data';
+
+  function show(d) { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); openPopups(); refreshNotis(); }
+
   function load() {
-    ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = loadingHtml());
-    $('#cat-tiles').innerHTML = '';
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(DATA_KEY)); } catch (e) {}
+    if (saved && saved.notices) show(saved);
+    else {
+      ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = loadingHtml());
+      $('#cat-tiles').innerHTML = '';
+    }
     call('getData')
-      .then(d => { state.data = d; renderNotices(); renderBenefits(); renderFaq(); initSchedule(); openPopups(); refreshNotis(); })
+      .then(d => {
+        try { localStorage.setItem(DATA_KEY, JSON.stringify(d)); } catch (e) {}
+        if (!saved || JSON.stringify(saved) !== JSON.stringify(d)) show(d);
+      })
       .catch(err => {
+        if (saved && saved.notices) return;
         const html = `<div class="empty">불러오지 못했습니다.<br>${esc(errText(err))}<br><button class="btn" type="button" data-retry>다시 시도</button></div>`;
         ['#notice-list', '#benefit-list', '#faq-list'].forEach(s => $(s).innerHTML = html);
       });
